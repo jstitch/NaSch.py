@@ -1,0 +1,123 @@
+NaSch.py 0.1
+
+An implementation of Nagel-Schreckenberg vehicular traffic automaton.
+
+NaSch.py uses Cage software by Erik Max Francis (which you can
+download at http://www.alcyone.com/software/cage/)
+
+The basic requirements to run NaSch.py are:
+
+-cage (latest version, at time of realease it is 1.1.4)
+
+-PIL , python image library, which maybe you can install via the
+python setuptools
+
+-I have tested cage (and NaSch.py) with Python 2.5, 2.6 & 2.7 . It
+ should run nice with Python 3, buth I'm not certain
+
+
+---
+Installation & Running:
+
+-Copy nasch.py file in the same directory as cage software (as a
+ matter of fact, you only need the cage.py file, the other files are
+ nice CA players that come bundled with cage)
+
+-Run with python nasch.py
+
+
+---
+NaSch.py and Cage
+
+Cage is a software for simulating cellular automata (CA). It consists
+of a main engine (cage.py) and several players, which according to
+certain rules, may be used to render the evolution of certain CA.
+
+NaSch.py consists of just some new rules used along with a
+NaschImagePlayer (extended from cage's ImagePlayer).
+
+More info, at the code... ;)
+
+
+---
+Nagel-Schreckenberg vehicular traffic model:
+
+The Nagel-Schreckenberg (NaSch) model is a theoretical model for the
+simulation of freeway traffic. It was developed in the early 90s by
+the German physicists Kai Nagel and Michael Schreckenberg. Using
+algorithms it delivers predictions for roadway traffic, in particular
+concerning traffic density and traffic flow. The model was the first
+to explain how traffic congestions can emerge without external
+influence as a result of imperfect driving behavior. It is related to
+the fields of chaos theory and game theory.
+
+In the NaSch model, a road is represented by a single line or array of
+values, each of which represent an empty or an occupied cell. Each
+cell corresponds to the regular length of a vehicle. A cell with a
+vehicle is represented by a natural number, from 0 to max_speed (which
+in NaSch.py is 5, which again roughly corresponds to a maximum speed
+of something above 100 km/h or 62 mi/h - assuming that a cell
+correspond to something around 7 meters, which Nagel & Schreckenberg
+found as the mean longitude of a vehicle plus the space to the next
+one in a road).
+
+Each speed value corresponds too to the distance a vehicle will travel
+at each iteration. So a speed of 3 means the vehicle will be 3 cells
+in front of its current position at the next iteration.
+
+At each iteration of the CA, 4 rules are applied to each cell, to
+calculate if a vehicle will occupy it or not, and at which speed:
+
+1) Acceleration: if vehicle hasn't reached max speed, accelerate by 1
+
+2) Slowing down: in case the accelerated new speed would make the
+vehicle collide with the vehicle inmediatly in front of it, slow down
+the vehicle to the maximum speed between its new accelerated speed and
+the distance to the next vehicle, also, negative speeds aren't allowed
+
+3) Randomnization: to simulate drivers' distractions, slow down by 1
+the new accelerated-maybe-slowed-down speed of each vehicle with a
+probability of p (which in NaSch.py has been initialized to 30%, ie
+only 30% of the vehicles will be slowed down by this rule). Remember
+that no negative speeds are allowed
+
+4) Motion: when all vehicles have their new speeds calculated, move
+them in the road at the calculated speed
+
+Of course, more things must be taken into account, such as the
+topology of the road (is it circular or open at the edges? if open,
+should new vehicles be injected at the front edge, and at what rate?
+if open, is it an 'infinite' topology? etc...) In NaSch.py, a
+circular road has been considered.
+
+At last, when a certain number of iterations has been run (in NaSch.py
+it is 500), you can inspect the 'image' of the different speeds of
+vehicles accross time. This is the final result NaSch.py will
+give. You will notice the presence of traffic waves, which are common
+in vehicular traffic, and which give the common sensation of boredom
+and desparation in any city ;-) (depending, of course, on the length
+of the traffic waves)
+
+For more information on Cellular Automata:
+http://en.wikipedia.org/wiki/Cellular_automaton
+
+Nagel & Schreckenberg model:
+http://en.wikipedia.org/wiki/Nagel-Schreckenberg_model
+
+Traffic waves: http://en.wikipedia.org/wiki/Traffic_wave
+
+At http://es.wikipedia.org/wiki/Modelo_Nagel-Schreckenberg you may
+find a list of some variants to the NaSch model
+
+
+---
+COPYING:
+
+NaSch.py is licensed under the GPLv3 license
+(http://www.gnu.org/licenses/gpl.html)
+
+
+---
+Contact:
+
+You may contact the author of NaSch.py at jstitch@gmail.com
