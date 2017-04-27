@@ -18,7 +18,7 @@ import cage
 
 import random
 try:
-    import Image
+    from PIL import Image
 except ImportError:
     Image = None
 
