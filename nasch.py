@@ -27,9 +27,7 @@ NSEMPTY = -1
 
 #Nasch Map
 class NaschMap(cage.RadialMap):
-    
     """A one-dimensional, radial map for NaSch model."""
-    
     #NaschMap is a radial map, that means neighborhoods are radial,
     #with radius = vmax. However, in practice, real neighborhood is
     #more dynamic: it goes from the preceding vehicule to the one at
@@ -41,21 +39,19 @@ class NaschMap(cage.RadialMap):
         cage.RadialMap.__init__(self, size, vmax)
         self.background = NSEMPTY
         self.vmax = vmax
-    
+
     def clone(self):
         return NaschMap(self.size, self.vmax)
 
 #Nasch first 3 rules: speed modification rules
 class NewspeedRule(cage.Rule):
-
     """Nagel & Schreckenberg 1st, 2nd and 3rd rules applied to
     change vehicule-cells' speed, empty cells remain untouched"""
-    
     def __init__(self, vmax, p):
         random.seed()
         self.vmax = vmax
         self.p = p
-    
+
     def populate(self, address):
         #include actual cell in neighborhood
         self.table = [self.map.get(address)]
@@ -63,18 +59,18 @@ class NewspeedRule(cage.Rule):
             if i%2 != 0: #for speed use cells in front, thats even ones
                 continue #in a radial neighborhood
             self.table.append(self.map.get(self.map.neighbors(address)[i]))
-    
+
     def rule(self, address):
         #if empty cell, don't make speed calculations
         if self.table[0] == NSEMPTY:
             return self.table[0]
-        
+
         #initial speed: actual state of cell
         vel = self.table[0]
-        
+
         #Rule #1 (acceleration)
         vel = min(vel + 1, self.vmax)
-        
+
         #Rule #2 (gap consideration)
         dist = 0
         ind = 0
@@ -87,28 +83,26 @@ class NewspeedRule(cage.Rule):
                 dist += 1
                 continue
             break
-        
+
         vel = min(vel, dist)
-        
+
         #Rule #3 (randomly slow vehicle)
         if random.random() < self.p:
             vel = max(vel - 1, 0)
-        
+
         return vel
 
 #Nasch 4th rule: movement rule
 class MovementRule(cage.Rule):
-
     """Nagel & Schreckenberg 4th rule applied to each cell in the
     highway, so as to move vehicules or update empty cells.
     The state of a non-empty cell indicates a speed, so the cell most
     move forward leaving an empty cell behind, or maybe a preceding
     vehicule, with its new speed, will fall right into this empty cell,
     so it also has to update"""
-    
     def __init__(self, vmax):
         self.vmax = vmax
-    
+
     def populate(self, address):
         #include actual cell in neighborhood
         self.table = [self.map.get(address)]
@@ -116,7 +110,7 @@ class MovementRule(cage.Rule):
             if i%2 == 0: #for movement, use cells in rear, that's odd ones
                 continue #in a radial neighborhood
             self.table.append(self.map.get(self.map.neighbors(address)[i]))
-    
+
     #Rule #4
     def rule(self, address):
         newpos = self.table[0]
@@ -139,14 +133,12 @@ class MovementRule(cage.Rule):
 
 #Nasch Rule: speed & movement rules
 class NaschRule(NewspeedRule, MovementRule):
-    
     """Nagel & Schreckenberg Rules"""
-    
     def __init__(self, vmax, p):
         self.move = False
         NewspeedRule.__init__(self, vmax, p)
         MovementRule.__init__(self, vmax)
-    
+
     def rule(self, address):
         if self.move == False:
             NewspeedRule.populate(self, address)
@@ -159,16 +151,14 @@ class NaschRule(NewspeedRule, MovementRule):
 
 #Nasch Automaton
 class NaschAutomaton(cage.SynchronousAutomaton, NaschRule):
-    
     """Nagel & Schreckenberg vehicular traffic automaton"""
-    
     states = 7
-    
+
     def __init__(self, size, vmax, p):
         cage.SynchronousAutomaton.__init__(self, NaschMap(size, vmax))
         NaschRule.__init__(self, vmax, p)
         self.states = vmax + 2 #states = {0,1,..,vmax} U {empty cell}
-    
+
     def update(self):   #the automata will update two times:
         self.move = False
         cage.SynchronousAutomaton.update(self)   #one for speed calculations
@@ -186,7 +176,7 @@ class NaschImagePlayer(cage.Player):
         self.size = (width,)
         self.row = 0
         self.inited = 0
-    
+
     def display(self):
         map = self.automaton.map
         col = (0, 0, 0)
@@ -206,7 +196,7 @@ class NaschImagePlayer(cage.Player):
                 col = (0, 0, 0)
             self.image.putpixel((x, self.row), col)
         self.row += 1
-    
+
     def main(self, automaton):
         cage.Player.main(self, automaton)
         assert self.automaton is not None
@@ -216,7 +206,7 @@ class NaschImagePlayer(cage.Player):
             self.automaton.update()
             self.automaton.between()
         self.finish()
-    
+
     def finish(self):
         self.image.show()
 
