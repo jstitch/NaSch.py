@@ -168,7 +168,7 @@ class NaschAutomaton(cage.SynchronousAutomaton, NaschRule):
 #Image Player for Nasch
 class NaschImagePlayer(cage.Player):
     def __init__(self, width, height):
-        assert Image
+        assert Image , "WARNING: no Image library loaded"
         cage.Player.__init__(self)
         self.width = width
         self.height = height
